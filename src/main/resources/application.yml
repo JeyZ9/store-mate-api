@@ -6,7 +6,7 @@ spring:
     import: optional:file:.env[.properties]
   
   profiles:
-    active: dev
+    active: ${SPRING_PROFILES_ACTIVE:dev}
     
   servlet:
     multipart:
