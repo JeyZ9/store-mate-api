@@ -17,11 +17,13 @@ spring:
     time-zone: Asia/Bangkok
     
   flyway:
-    enabled: true
     locations: classpath:db/migration
     
+  jpa:
+    open-in-view: false
+    
 springdoc:
-  packages-to-scan: com.sm.jeyz9.storemateapi.controller
+  packages-to-scan: com.sm.jeyz9.storemateapi.controllers
   
 jwt-secret: ${JWT_SECRET}
 jwt-expiration: 604800000
