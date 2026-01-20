@@ -2,27 +2,58 @@ package com.sm.jeyz9.storemateapi.config;
 
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableMethodSecurity
-@SecurityScheme(
-        name = "Bearer Authentication",
-        type = SecuritySchemeType.HTTP,
-        scheme = "bearer",
-        bearerFormat = "JWT"
-)
+@EnableWebSecurity
 public class SecurityConfig {
+    
+    private final JwtAuthenticationFilter jwtFilter;
+    
+    @Autowired
+    public SecurityConfig(JwtAuthenticationFilter jwtFilter) {
+        this.jwtFilter = jwtFilter;
+    }
+    
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.cors(Customizer.withDefaults()).csrf(csrf -> csrf.disable())
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.cors(Customizer.withDefaults())
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((req, res, e) -> {
+                            res.setStatus(401);
+                            res.setContentType("application/json");
+                            res.getWriter().write("""
+                    {
+                      "status": 401,
+                      "message": "Unauthorized or invalid token"
+                    }
+                    """);
+                        })
+                        .accessDeniedHandler((req, res, e) -> {
+                            res.setStatus(403);
+                            res.setContentType("application/json");
+                            res.getWriter().write("""
+                    {
+                      "status": 403,
+                      "message": "Access denied"
+                    }
+                    """);
+                        })
+                )
                 .authorizeHttpRequests((authorize) -> 
                         authorize
                                 .requestMatchers(HttpMethod.GET,
@@ -30,20 +61,15 @@ public class SecurityConfig {
                                         "/swagger-ui.html",
                                         "/swagger-ui/**"
                                 ).permitAll()
+                                .requestMatchers(HttpMethod.POST,
+                                        "/api/v1/auth/**"
+                                ).permitAll()
                                 .anyRequest().authenticated()
-                        )
-//                TODO
-//                .exceptionHandling(exception -> exception
-//                        .authenticationEntryPoint()
-//                        .authenticationEntryPoint()
-//                        .accessDeniedHandler()
-//                )
-                        .sessionManagement(session -> session
-                            .sessionCreationPolicy(SessionCreationPolicy.STATELESS
-                        )
+                )
+                .addFilterBefore(
+                        jwtFilter,
+                        UsernamePasswordAuthenticationFilter.class
                 );
-//        TODO
-//        http.addFilterBefore()
         return http.build();
     }
 }
