@@ -19,7 +19,6 @@ spring:
       data-source-properties:
         prepareThreshold: 5
 
-  spring:
-    flyway:
-      enabled: true
-      clean-disabled: true
+  flyway:
+    enabled: true
+    clean-disabled: true

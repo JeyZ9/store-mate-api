@@ -43,6 +43,8 @@ public class User {
     
     @JsonIgnore
     private String password;
+
+    private String imageUrl;
     
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
