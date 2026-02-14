@@ -1,5 +1,8 @@
 package com.sm.jeyz9.storemateapi.services.impl;
 
+import com.sm.jeyz9.storemateapi.dto.PasswordResetDTO;
+import com.sm.jeyz9.storemateapi.models.PasswordResetToken;
+import com.sm.jeyz9.storemateapi.repository.PasswordResetTokenRepository;
 import com.sm.jeyz9.storemateapi.repository.RoleRepository;
 import com.sm.jeyz9.storemateapi.repository.UserRepository;
 import com.sm.jeyz9.storemateapi.config.JwtService;
@@ -15,7 +18,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Service
@@ -24,26 +29,28 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final JwtService jwtService;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
 
-    public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository, JwtService jwtService) {
+    public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository, JwtService jwtService, PasswordResetTokenRepository passwordResetTokenRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
         this.jwtService = jwtService;
+        this.passwordResetTokenRepository = passwordResetTokenRepository;
     }
 
     @Override
-    public String register(RegisterDTO require) {
+    public String register(RegisterDTO request) {
         try {
-            if (userRepository.existsUserByEmail(require.getEmail())) {
+            if (userRepository.existsUserByEmail(request.getEmail())) {
                 throw new WebException(HttpStatus.BAD_REQUEST, "Exist by email");
             }
 
-            if (userRepository.existsUserByPhone(require.getPhone())) {
+            if (userRepository.existsUserByPhone(request.getPhone())) {
                 throw new WebException(HttpStatus.BAD_REQUEST, "Exist by phone");
             }
 
-            if (!require.getPassword().equals(require.getConfirmPassword())) {
+            if (!request.getPassword().equals(request.getConfirmPassword())) {
                 throw new WebException(HttpStatus.BAD_REQUEST, "Password does not match");
             }
             
@@ -53,10 +60,10 @@ public class AuthServiceImpl implements AuthService {
             
             User user = User.builder()
                     .id(null)
-                    .name(require.getName())
-                    .email(require.getEmail())
-                    .phone(require.getPhone())
-                    .password(passwordEncoder.encode(require.getPassword()))
+                    .name(request.getName())
+                    .email(request.getEmail())
+                    .phone(request.getPhone())
+                    .password(passwordEncoder.encode(request.getPassword()))
                     .roles(roles)
                     .build();
             userRepository.save(user);
@@ -69,10 +76,10 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String login(LoginDTO require) {
-        User user = userRepository.findUserByEmail(require.getEmail()).orElseThrow(() -> new WebException(HttpStatus.UNAUTHORIZED, "Invalid email or password"));
+    public String login(LoginDTO request) {
+        User user = userRepository.findUserByEmail(request.getEmail()).orElseThrow(() -> new WebException(HttpStatus.UNAUTHORIZED, "Invalid email or password"));
         
-        if(!passwordEncoder.matches(require.getPassword(), user.getPassword())) {
+        if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new WebException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
         }
 
@@ -85,5 +92,33 @@ public class AuthServiceImpl implements AuthService {
         );
         
         return jwtService.generateToken(userDetails);
+    }
+
+    @Override
+    @Transactional
+    public String resetPassword(PasswordResetDTO request) {
+        try{
+            PasswordResetToken token = passwordResetTokenRepository.findByToken(request.getToken()).orElseThrow(() -> new WebException(HttpStatus.BAD_REQUEST, "This token is invalid."));
+            
+            if(token.getExpiredAt().isBefore(LocalDateTime.now())) {
+                throw new WebException(HttpStatus.BAD_REQUEST, "Token is expired");
+            }
+            if (!request.getPassword().equals(request.getConfirmPassword())) {
+                throw new WebException(HttpStatus.BAD_REQUEST, "Password does not match");
+            }
+            
+            User user = userRepository.findById(token.getUser().getId()).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found"));
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+            userRepository.save(user);
+            
+            token.setUsedAt(LocalDateTime.now());
+            token.setExpiredAt(LocalDateTime.now());
+            passwordResetTokenRepository.save(token);
+            return "Reset password successfully.";
+        } catch (WebException e) {
+            throw e;
+        }catch (Exception e) {
+            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, "Server error: " + e.getMessage());
+        }
     }
 }
