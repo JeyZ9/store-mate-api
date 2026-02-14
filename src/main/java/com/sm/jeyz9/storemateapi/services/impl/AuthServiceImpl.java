@@ -1,5 +1,6 @@
 package com.sm.jeyz9.storemateapi.services.impl;
 
+import com.sm.jeyz9.storemateapi.dto.ChangePasswordDTO;
 import com.sm.jeyz9.storemateapi.dto.PasswordResetDTO;
 import com.sm.jeyz9.storemateapi.models.PasswordResetToken;
 import com.sm.jeyz9.storemateapi.repository.PasswordResetTokenRepository;
@@ -116,6 +117,26 @@ public class AuthServiceImpl implements AuthService {
             passwordResetTokenRepository.save(token);
             return "Reset password successfully.";
         } catch (WebException e) {
+            throw e;
+        }catch (Exception e) {
+            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, "Server error: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public String changePassword(String email, ChangePasswordDTO request) {
+        try{
+            User user = userRepository.findUserByEmail(email).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found."));
+            if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+                throw new WebException(HttpStatus.BAD_REQUEST, "Old password is incorrect.");
+            }
+            if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+                throw new WebException(HttpStatus.BAD_REQUEST, "Password does not match");
+            }
+            user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+            userRepository.save(user);
+            return "Password changed successfully. Please login again.";
+        }catch (WebException e) {
             throw e;
         }catch (Exception e) {
             throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, "Server error: " + e.getMessage());
