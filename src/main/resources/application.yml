@@ -28,7 +28,8 @@ springdoc:
 jwt-secret: ${JWT_SECRET}
 jwt-expiration: 604800000
 
-thaibulk:
+front_end_url: ${FRONTEND_URL}
+thaibulksms:
   key: ${THAIBULKEMAIL_KEY}
   secret: ${THAIBULKEMAIL_SECRET}
   send_url: ${THAIBULKEMAIL_SEND_URL}
