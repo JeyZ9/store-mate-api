@@ -1,4 +1,4 @@
-package com.sm.jeyz9.storemateapi.Repository;
+package com.sm.jeyz9.storemateapi.repository;
 
 import com.sm.jeyz9.storemateapi.models.Role;
 import com.sm.jeyz9.storemateapi.models.RoleName;
