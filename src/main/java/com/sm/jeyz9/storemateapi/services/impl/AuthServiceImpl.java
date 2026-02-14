@@ -1,7 +1,7 @@
 package com.sm.jeyz9.storemateapi.services.impl;
 
-import com.sm.jeyz9.storemateapi.Repository.RoleRepository;
-import com.sm.jeyz9.storemateapi.Repository.UserRepository;
+import com.sm.jeyz9.storemateapi.repository.RoleRepository;
+import com.sm.jeyz9.storemateapi.repository.UserRepository;
 import com.sm.jeyz9.storemateapi.config.JwtService;
 import com.sm.jeyz9.storemateapi.dto.LoginDTO;
 import com.sm.jeyz9.storemateapi.dto.RegisterDTO;
