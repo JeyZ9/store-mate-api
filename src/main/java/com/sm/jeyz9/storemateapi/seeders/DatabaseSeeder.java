@@ -1,6 +1,6 @@
 package com.sm.jeyz9.storemateapi.seeders;
 
-import com.sm.jeyz9.storemateapi.Repository.RoleRepository;
+import com.sm.jeyz9.storemateapi.repository.RoleRepository;
 import com.sm.jeyz9.storemateapi.models.Role;
 import com.sm.jeyz9.storemateapi.models.RoleName;
 import org.springframework.boot.CommandLineRunner;

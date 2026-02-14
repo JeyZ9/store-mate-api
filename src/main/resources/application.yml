@@ -27,3 +27,10 @@ springdoc:
   
 jwt-secret: ${JWT_SECRET}
 jwt-expiration: 604800000
+
+thaibulk:
+  key: ${THAIBULKEMAIL_KEY}
+  secret: ${THAIBULKEMAIL_SECRET}
+  send_url: ${THAIBULKEMAIL_SEND_URL}
+  email_sender: ${THAIBULKEMAIL_EMAIL_SENDER}
+  reset_password_template_uuid: ${THAIBULKEMAIL_RESET_PASSWORD_TEMPLATE_UUID}
