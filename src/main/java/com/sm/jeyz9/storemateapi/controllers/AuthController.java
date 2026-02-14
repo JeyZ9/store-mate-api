@@ -1,5 +1,6 @@
 package com.sm.jeyz9.storemateapi.controllers;
 
+import com.sm.jeyz9.storemateapi.dto.ChangePasswordDTO;
 import com.sm.jeyz9.storemateapi.dto.LoginDTO;
 import com.sm.jeyz9.storemateapi.dto.PasswordResetDTO;
 import com.sm.jeyz9.storemateapi.dto.RegisterDTO;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
 import java.util.Map;
 
 @RestController
@@ -51,5 +53,10 @@ public class AuthController {
     @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(@Valid @RequestBody PasswordResetDTO request) {
         return new ResponseEntity<>(authService.resetPassword(request), HttpStatus.CREATED);
+    }
+    
+    @PostMapping("/change-password")
+    public ResponseEntity<String> changePassword(@Valid @RequestBody ChangePasswordDTO request, Principal principal) {
+        return new ResponseEntity<>(authService.changePassword(principal.getName(), request), HttpStatus.CREATED);
     }
 }
