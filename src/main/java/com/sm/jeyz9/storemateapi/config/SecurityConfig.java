@@ -56,13 +56,21 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET,
                                         "/v3/api-docs/**",
                                         "/swagger-ui.html",
-                                        "/swagger-ui/**"
+                                        "/swagger-ui/**",
+
+                                        // TODO: for test
+                                        "/api/v1/products",
+                                        "/api/v1/products/**"
                                 ).permitAll()
                                 .requestMatchers(HttpMethod.POST,
                                         "/api/v1/auth/login",
                                         "/api/v1/auth/register",
                                         "/api/v1/auth/forgot-password",
-                                        "/api/v1/auth/reset-password"
+                                        "/api/v1/auth/reset-password",
+                                        
+                                        // TODO: for test
+                                        "/api/v1/products/**",
+                                        "/api/v1/products"
                                 ).permitAll()
                                 .requestMatchers(HttpMethod.POST,
                                         "/api/v1/auth/change-password"
