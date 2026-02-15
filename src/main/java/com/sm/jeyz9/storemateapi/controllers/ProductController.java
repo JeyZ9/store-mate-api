@@ -20,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/products")
+@RequestMapping("/api/v1")
 public class ProductController {
     private final ProductService productService;
     
@@ -45,7 +45,7 @@ public class ProductController {
                     }
             """
     )
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/moderator/products", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> addProduct(
             @RequestPart(value = "request", required = true) String requestJson,
             @RequestPart(value = "files", required = false) List<MultipartFile> files
@@ -62,7 +62,7 @@ public class ProductController {
             summary = "แสดงสินค้าตามหมวดหมู่",
             description = "ใช้สำหรับดึงข้อมูลสินค้าที่แบ่งตามหมวดหมู่ไว้แสดงที่หน้าแรกของเว็บไซต์"
     )
-    @GetMapping("/grouped-by-category")
+    @GetMapping("/products/grouped-by-category")
     public ResponseEntity<ProductWithCategoryDTO> getProductsWithCategory() {
         return ResponseEntity.ok(productService.getProductsWithCategory());
     }

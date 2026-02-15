@@ -59,8 +59,7 @@ public class SecurityConfig {
                                         "/swagger-ui/**",
 
                                         // TODO: for test
-                                        "/api/v1/products",
-                                        "/api/v1/products/**"
+                                        "/api/v1/products/grouped-by-category"
                                 ).permitAll()
                                 .requestMatchers(HttpMethod.POST,
                                         "/api/v1/auth/login",
@@ -69,8 +68,7 @@ public class SecurityConfig {
                                         "/api/v1/auth/reset-password",
                                         
                                         // TODO: for test
-                                        "/api/v1/products/**",
-                                        "/api/v1/products"
+                                        "/api/v1/moderator/products"
                                 ).permitAll()
                                 .requestMatchers(HttpMethod.POST,
                                         "/api/v1/auth/change-password"
