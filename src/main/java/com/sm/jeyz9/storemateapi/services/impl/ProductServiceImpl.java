@@ -6,6 +6,7 @@ import com.sm.jeyz9.storemateapi.dto.ProductWithCategoryDTO;
 import com.sm.jeyz9.storemateapi.exceptions.WebException;
 import com.sm.jeyz9.storemateapi.models.Category;
 import com.sm.jeyz9.storemateapi.models.Product;
+import com.sm.jeyz9.storemateapi.models.ProductImage;
 import com.sm.jeyz9.storemateapi.models.ProductStatus;
 import com.sm.jeyz9.storemateapi.models.ProductStatusName;
 import com.sm.jeyz9.storemateapi.models.ProductStock;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -113,11 +115,12 @@ public class ProductServiceImpl implements ProductService {
                             .id(p.getId())
                             .productName(p.getName())
                             .categoryName(p.getCategory().getName())
-                            .imageUrl(p.getProductImage().stream().findFirst().toString())
+                            .imageUrl(p.getProductImage().stream().findFirst().map(ProductImage::getImageUrl).orElse(null))
                             .status(p.getProductStatus().getStatus())
                             .summary(p.getSummary())
                             .price(p.getPrice())
+                            .createdAt(p.getCreatedAt())
                             .build()
-        ).toList();
+        ).sorted(Comparator.comparing(ProductDTO::getCreatedAt)).toList();
     }
 }
