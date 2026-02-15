@@ -35,3 +35,9 @@ thaibulksms:
   send_url: ${THAIBULKEMAIL_SEND_URL}
   email_sender: ${THAIBULKEMAIL_EMAIL_SENDER}
   reset_password_template_uuid: ${THAIBULKEMAIL_RESET_PASSWORD_TEMPLATE_UUID}
+
+supabase:
+  url: ${SUPABASE_URL}
+  key: ${SUPABASE_KEY}
+  bucket:
+    product: ${SUPABASE_BUCKET_PRODUCT}
