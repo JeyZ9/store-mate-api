@@ -57,9 +57,8 @@ public class SecurityConfig {
                                         "/v3/api-docs/**",
                                         "/swagger-ui.html",
                                         "/swagger-ui/**",
-
-                                        // TODO: for test
-                                        "/api/v1/products/grouped-by-category"
+                                        "/api/v1/products/grouped-by-category",
+                                        "/api/v1/products/search"
                                 ).permitAll()
                                 .requestMatchers(HttpMethod.POST,
                                         "/api/v1/auth/login",

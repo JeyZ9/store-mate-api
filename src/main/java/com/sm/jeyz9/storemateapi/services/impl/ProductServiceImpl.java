@@ -1,5 +1,6 @@
 package com.sm.jeyz9.storemateapi.services.impl;
 
+import com.sm.jeyz9.storemateapi.dto.PaginationDTO;
 import com.sm.jeyz9.storemateapi.dto.ProductDTO;
 import com.sm.jeyz9.storemateapi.dto.ProductRequestDTO;
 import com.sm.jeyz9.storemateapi.dto.ProductWithCategoryDTO;
@@ -17,6 +18,10 @@ import com.sm.jeyz9.storemateapi.repository.ProductStockRepository;
 import com.sm.jeyz9.storemateapi.services.ProductService;
 import com.sm.jeyz9.storemateapi.services.SupabaseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -108,7 +113,49 @@ public class ProductServiceImpl implements ProductService {
             throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, "Server error: " + e.getMessage());
         }
     }
-    
+
+    @Override
+    public PaginationDTO<ProductDTO> searchProducts(String keyword, Long categoryId, Double minPrice, Double maxPrice, int page, int size) {
+        try{
+            List<Product> productList = productRepository.findAll();
+            Stream<Product> stream = productList.stream();
+            
+            if(keyword != null && !keyword.trim().isEmpty()){
+                stream = stream.filter(p -> p.getName().toLowerCase().contains(keyword.toLowerCase()));
+            }
+
+            if(categoryId != null){
+                stream = stream.filter(p -> p.getCategory().getId().equals(categoryId));
+            }
+            
+            if(minPrice != null) {
+                stream = stream.filter(p -> p.getPrice() >= minPrice);
+            }
+
+            if(maxPrice != null) {
+                stream = stream.filter(p -> p.getPrice() <= maxPrice);
+            }
+            
+            List<ProductDTO> products = mapToProductDTO(stream.toList());
+            Pageable pageable = PageRequest.of(page, size);
+            int start = (int) pageable.getOffset();
+            int end = Math.min((start + pageable.getPageSize()), products.size());
+            int total = products.size();
+            
+            List<ProductDTO> paginatedList = products.subList(start, end);
+            Page<ProductDTO> productsPage = new PageImpl<>(paginatedList, pageable, products.size());
+            
+            PaginationDTO<ProductDTO> productPagination = new PaginationDTO<>();
+            productPagination.setData(productsPage.getContent());
+            productPagination.setPage(page);
+            productPagination.setSize(size);
+            productPagination.setTotal(total);
+            return productPagination;
+        } catch (Exception e) {
+            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, "Server Error: " + e.getMessage());
+        }
+    }
+
     private List<ProductDTO> mapToProductDTO(List<Product> products) {
         return products.stream().map(p -> 
                     ProductDTO.builder()
