@@ -29,7 +29,8 @@ public class WebConfig implements WebMvcConfigurer {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
                 "http://localhost:5173",
-                "https://store-mate-api.onrender.com"
+                "https://store-mate-api.onrender.com",
+                "https://storemate-final.vercel.app"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
         config.setAllowedHeaders(List.of("*"));
