@@ -2,8 +2,12 @@ package com.sm.jeyz9.storemateapi.services.impl;
 
 import com.sm.jeyz9.storemateapi.dto.PaginationDTO;
 import com.sm.jeyz9.storemateapi.dto.ProductDTO;
+import com.sm.jeyz9.storemateapi.dto.ProductDetailsDTO;
+import com.sm.jeyz9.storemateapi.dto.ProductImageDTO;
 import com.sm.jeyz9.storemateapi.dto.ProductRequestDTO;
 import com.sm.jeyz9.storemateapi.dto.ProductWithCategoryDTO;
+import com.sm.jeyz9.storemateapi.dto.ReviewDTO;
+import com.sm.jeyz9.storemateapi.dto.ReviewerDTO;
 import com.sm.jeyz9.storemateapi.exceptions.WebException;
 import com.sm.jeyz9.storemateapi.models.Category;
 import com.sm.jeyz9.storemateapi.models.Product;
@@ -11,12 +15,16 @@ import com.sm.jeyz9.storemateapi.models.ProductImage;
 import com.sm.jeyz9.storemateapi.models.ProductStatus;
 import com.sm.jeyz9.storemateapi.models.ProductStatusName;
 import com.sm.jeyz9.storemateapi.models.ProductStock;
+import com.sm.jeyz9.storemateapi.models.Review;
 import com.sm.jeyz9.storemateapi.repository.CategoryRepository;
+import com.sm.jeyz9.storemateapi.repository.ProductImageRepository;
 import com.sm.jeyz9.storemateapi.repository.ProductRepository;
 import com.sm.jeyz9.storemateapi.repository.ProductStatusRepository;
 import com.sm.jeyz9.storemateapi.repository.ProductStockRepository;
+import com.sm.jeyz9.storemateapi.repository.ReviewRepository;
 import com.sm.jeyz9.storemateapi.services.ProductService;
 import com.sm.jeyz9.storemateapi.services.SupabaseService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -40,14 +48,26 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepository categoryRepository;
     private final ProductStockRepository productStockRepository;
     private final SupabaseService supabaseService;
+    private final ReviewRepository reviewRepository;
+    private final ModelMapper modelMapper;
+    private final ProductImageRepository productImageRepository;
 
     @Autowired
-    public ProductServiceImpl(ProductRepository productRepository, ProductStatusRepository productStatusRepository, CategoryRepository categoryRepository, ProductStockRepository productStockRepository, SupabaseService supabaseService) {
+    public ProductServiceImpl(ProductRepository productRepository,
+                              ProductStatusRepository productStatusRepository,
+                              CategoryRepository categoryRepository,
+                              ProductStockRepository productStockRepository,
+                              SupabaseService supabaseService,
+                              ReviewRepository reviewRepository,
+                              ModelMapper modelMapper, ProductImageRepository productImageRepository) {
         this.productRepository = productRepository;
         this.productStatusRepository = productStatusRepository;
         this.categoryRepository = categoryRepository;
         this.productStockRepository = productStockRepository;
         this.supabaseService = supabaseService;
+        this.reviewRepository = reviewRepository;
+        this.modelMapper = modelMapper;
+        this.productImageRepository = productImageRepository;
     }
     
     @Override
@@ -155,6 +175,29 @@ public class ProductServiceImpl implements ProductService {
             throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, "Server Error: " + e.getMessage());
         }
     }
+    
+    @Override
+    public ProductDetailsDTO getProductDetails(Long id){
+        try{
+            Product product = productRepository.findById(id).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Product not found."));
+            List<Review> reviews = reviewRepository.findAllByProductId(product.getId());
+            List<ProductImage> productImages = productImageRepository.findAllByProductId(product.getId());
+            Integer stock = productStockRepository.findStockQuantityByProductId(product.getId());
+            Float ratingScore = reviewRepository.findRatingByProductId(product.getId());
+            
+            return ProductDetailsDTO.builder()
+                    .id(product.getId())
+                    .productImages(mapToProductImageDTO(productImages))
+                    .productName(product.getName())
+                    .description(product.getDescription())
+                    .quantity(stock)
+                    .RatingScore(ratingScore)
+                    .reviews(mapToReviewDTO(reviews))
+                    .build();
+        } catch (Exception e) {
+            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, "Server Error: " + e.getMessage());
+        }
+    }
 
     private List<ProductDTO> mapToProductDTO(List<Product> products) {
         return products.stream().map(p -> 
@@ -169,5 +212,21 @@ public class ProductServiceImpl implements ProductService {
                             .createdAt(p.getCreatedAt())
                             .build()
         ).sorted(Comparator.comparing(ProductDTO::getCreatedAt)).toList();
+    }
+    
+    private List<ReviewDTO> mapToReviewDTO(List<Review> reviews) {
+        return reviews.stream().map(r -> 
+                    ReviewDTO.builder()
+                            .id(r.getId())
+                            .reviewer(modelMapper.map(r.getReviewer(), ReviewerDTO.class))
+                            .reviewScore(r.getReviewScore())
+                            .message(r.getMessage())
+                            .createdAt(r.getCreatedAt())
+                            .build()
+                ).toList();
+    }
+    
+    private List<ProductImageDTO> mapToProductImageDTO(List<ProductImage> productImages) {
+        return productImages.stream().map(pi -> modelMapper.map(pi, ProductImageDTO.class)).toList();
     }
 }
