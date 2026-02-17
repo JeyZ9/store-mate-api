@@ -1,5 +1,6 @@
 package com.sm.jeyz9.storemateapi.config;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,6 +23,11 @@ public class WebConfig implements WebMvcConfigurer {
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
+    }
+    
+    @Bean
+    public ModelMapper modelMapper() {
+        return new ModelMapper();
     }
 
     @Bean
