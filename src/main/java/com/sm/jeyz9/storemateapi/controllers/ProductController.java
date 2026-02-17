@@ -43,6 +43,18 @@ public class ProductController {
                       "description": "string",
                       "stockQuantity": 0
                     }
+                    
+                    ตัวอย่าง category :
+                    id   |  categoryName
+                    1    |  Promotion
+                    2    |  Soap
+                    3    |  Drinks
+                    4    |  Shampoo
+                    
+                    ตัวอย่าง status :
+                    id   |  statusName
+                    1    |  active   => พร้อมจำหน่าย
+                    2    |  inactive => ไม่พร้อมจำหน่าย
             """
     )
     @PostMapping(value = "/moderator/products", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
