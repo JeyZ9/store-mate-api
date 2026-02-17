@@ -2,6 +2,8 @@ package com.sm.jeyz9.storemateapi.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sm.jeyz9.storemateapi.dto.PaginationDTO;
+import com.sm.jeyz9.storemateapi.dto.ProductDTO;
 import com.sm.jeyz9.storemateapi.dto.ProductRequestDTO;
 import com.sm.jeyz9.storemateapi.dto.ProductWithCategoryDTO;
 import com.sm.jeyz9.storemateapi.services.ProductService;
@@ -13,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -77,5 +80,18 @@ public class ProductController {
     @GetMapping("/products/grouped-by-category")
     public ResponseEntity<ProductWithCategoryDTO> getProductsWithCategory() {
         return ResponseEntity.ok(productService.getProductsWithCategory());
+    }
+    
+    @Operation(summary = "ค้นหาและกรองข้อมูลสินค้า", description = "สามารถค้นหาและกรองสินค้าได้พร้อมกัน หรือ ทำอย่างใดอย่างหนึ่งก็ได้")
+    @GetMapping("/products/search")
+    public ResponseEntity<PaginationDTO<ProductDTO>> searchProducts(
+            @RequestParam(required = false, defaultValue = "") String keyword,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "1") Integer size
+    ){
+        return ResponseEntity.ok(productService.searchProducts(keyword, categoryId, minPrice, maxPrice, page, size));
     }
 }
