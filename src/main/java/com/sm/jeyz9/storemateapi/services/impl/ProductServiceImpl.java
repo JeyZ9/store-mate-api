@@ -191,6 +191,7 @@ public class ProductServiceImpl implements ProductService {
                     .productName(product.getName())
                     .description(product.getDescription())
                     .quantity(stock)
+                    .price(product.getPrice())
                     .RatingScore(ratingScore)
                     .reviews(mapToReviewDTO(reviews))
                     .build();
