@@ -20,5 +20,6 @@ public class ProductDetailsDTO {
     private Integer quantity;
     private Float RatingScore;
     private List<ProductImageDTO> productImages;
+    private Double price;
     private List<ReviewDTO> reviews;
 }
