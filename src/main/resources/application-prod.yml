@@ -10,14 +10,22 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
     hikari:
-      maximum-pool-size: 10
-      minimum-idle: 2
-      idle-timeout: 300000
-      max-lifetime: 1800000
-      connection-timeout: 20000
+      maximum-pool-size: 5
+      minimum-idle: 0
+      idle-timeout: 60000
+      max-lifetime: 240000
+      connection-timeout: 30000
       validation-timeout: 5000
       data-source-properties:
-        prepareThreshold: 5
+        prepareThreshold: 0
+#      maximum-pool-size: 10
+#      minimum-idle: 2
+#      idle-timeout: 300000
+#      max-lifetime: 1800000
+#      connection-timeout: 20000
+#      validation-timeout: 5000
+#      data-source-properties:
+#        prepareThreshold: 5
 
   flyway:
     enabled: true
