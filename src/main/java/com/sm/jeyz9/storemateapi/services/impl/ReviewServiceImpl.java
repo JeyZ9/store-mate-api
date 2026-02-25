@@ -33,6 +33,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     @Transactional
     public String addReview(Long productId, String userEmail, ReviewRequestDTO request) {
+        try{
         User user = userRepository.findUserByEmail(userEmail)
                 .orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "User not found."));
 
@@ -51,11 +52,18 @@ public class ReviewServiceImpl implements ReviewService {
 
         reviewRepository.save(review);
         return "Review added successfully.";
+        }catch(WebException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, "Server error " + e.getMessage());
+        }
     }
 
     @Override
     @Transactional
     public String updateReview(Long reviewId, String userEmail, ReviewRequestDTO request) {
+        try{
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Review not found."));
 
@@ -70,11 +78,15 @@ public class ReviewServiceImpl implements ReviewService {
 
         reviewRepository.save(review);
         return "Review updated successfully.";
+        }catch (Exception e) {
+            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, "Server error: " + e.getMessage());
+        }
     }
 
     @Override
     @Transactional
     public String deleteReview(Long reviewId, String userEmail) {
+        try{
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Review not found."));
 
@@ -85,5 +97,8 @@ public class ReviewServiceImpl implements ReviewService {
 
         reviewRepository.delete(review);
         return "Review deleted successfully.";
+        }catch (Exception e) {
+            throw new WebException(HttpStatus.INTERNAL_SERVER_ERROR, "Server error: " + e.getMessage());
+        }
     }
 }
