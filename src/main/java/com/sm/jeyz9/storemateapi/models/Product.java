@@ -49,8 +49,9 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<ProductImage> productImage;
     
+    private Integer stock_quantity;
     private String summary;
     private String description;
-    
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime updatedAt;
+    private LocalDateTime createdAt;
 }
