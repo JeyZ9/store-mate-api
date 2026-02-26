@@ -1,6 +1,8 @@
 package com.sm.jeyz9.storemateapi.models;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -31,9 +33,8 @@ public class Cart {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
     
-    @ManyToOne
-    @JoinColumn(name = "status_id", referencedColumnName = "id")
-    private CartStatus status;
+    @Enumerated(EnumType.STRING)
+    private CartStatusName status;
     
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt = LocalDateTime.now();
