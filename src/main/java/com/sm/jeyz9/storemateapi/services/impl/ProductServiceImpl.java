@@ -14,13 +14,11 @@ import com.sm.jeyz9.storemateapi.models.Product;
 import com.sm.jeyz9.storemateapi.models.ProductImage;
 import com.sm.jeyz9.storemateapi.models.ProductStatus;
 import com.sm.jeyz9.storemateapi.models.ProductStatusName;
-import com.sm.jeyz9.storemateapi.models.ProductStock;
 import com.sm.jeyz9.storemateapi.models.Review;
 import com.sm.jeyz9.storemateapi.repository.CategoryRepository;
 import com.sm.jeyz9.storemateapi.repository.ProductImageRepository;
 import com.sm.jeyz9.storemateapi.repository.ProductRepository;
 import com.sm.jeyz9.storemateapi.repository.ProductStatusRepository;
-import com.sm.jeyz9.storemateapi.repository.ProductStockRepository;
 import com.sm.jeyz9.storemateapi.repository.ReviewRepository;
 import com.sm.jeyz9.storemateapi.services.ProductService;
 import com.sm.jeyz9.storemateapi.services.SupabaseService;
@@ -46,7 +44,6 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductStatusRepository productStatusRepository;
     private final CategoryRepository categoryRepository;
-    private final ProductStockRepository productStockRepository;
     private final SupabaseService supabaseService;
     private final ReviewRepository reviewRepository;
     private final ModelMapper modelMapper;
@@ -56,14 +53,12 @@ public class ProductServiceImpl implements ProductService {
     public ProductServiceImpl(ProductRepository productRepository,
                               ProductStatusRepository productStatusRepository,
                               CategoryRepository categoryRepository,
-                              ProductStockRepository productStockRepository,
                               SupabaseService supabaseService,
                               ReviewRepository reviewRepository,
                               ModelMapper modelMapper, ProductImageRepository productImageRepository) {
         this.productRepository = productRepository;
         this.productStatusRepository = productStatusRepository;
         this.categoryRepository = categoryRepository;
-        this.productStockRepository = productStockRepository;
         this.supabaseService = supabaseService;
         this.reviewRepository = reviewRepository;
         this.modelMapper = modelMapper;
@@ -84,18 +79,11 @@ public class ProductServiceImpl implements ProductService {
                     .category(category)
                     .summary(request.getSummary())
                     .price(request.getPrice())
+                    .stock_quantity(request.getStockQuantity())
+                    .updatedAt(LocalDateTime.now())
                     .createdAt(LocalDateTime.now())
                     .build();
             productRepository.save(product);
-
-            ProductStock productStock = ProductStock.builder()
-                    .id(null)
-                    .product(product)
-                    .stockQuantity(request.getStockQuantity())
-                    .updatedAt(LocalDateTime.now())
-                    .build();
-            
-            productStockRepository.save(productStock);
             
             supabaseService.saveProductImages(product.getId(), files);
             
@@ -182,7 +170,6 @@ public class ProductServiceImpl implements ProductService {
             Product product = productRepository.findById(id).orElseThrow(() -> new WebException(HttpStatus.NOT_FOUND, "Product not found."));
             List<Review> reviews = reviewRepository.findAllByProductId(product.getId());
             List<ProductImage> productImages = productImageRepository.findAllByProductId(product.getId());
-            Integer stock = productStockRepository.findStockQuantityByProductId(product.getId());
             Float ratingScore = reviewRepository.findRatingByProductId(product.getId());
             
             return ProductDetailsDTO.builder()
@@ -190,7 +177,7 @@ public class ProductServiceImpl implements ProductService {
                     .productImages(mapToProductImageDTO(productImages))
                     .productName(product.getName())
                     .description(product.getDescription())
-                    .quantity(stock)
+                    .quantity(product.getStock_quantity())
                     .price(product.getPrice())
                     .RatingScore(ratingScore)
                     .reviews(mapToReviewDTO(reviews))
