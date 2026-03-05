@@ -21,7 +21,7 @@ import java.security.Principal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/cart")
 public class CartController {
     private final CartService cartService;
     
@@ -30,7 +30,7 @@ public class CartController {
         this.cartService = cartService;
     }
     
-    @PostMapping("/cart/items")
+    @PostMapping("/add")
     public ResponseEntity<String> addProductToCart(@Valid @RequestBody CartItemRequestDTO request, Principal principal) {
            return new ResponseEntity<>(cartService.addProductToCart(principal.getName(), request), HttpStatus.CREATED);
     }
