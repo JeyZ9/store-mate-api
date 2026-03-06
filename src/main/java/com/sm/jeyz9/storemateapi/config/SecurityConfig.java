@@ -71,16 +71,10 @@ public class SecurityConfig {
                                         "/api/v1/moderator/products"
                                 ).permitAll()
                                 .requestMatchers(HttpMethod.POST,
-                                        "/api/v1/auth/change-password",
-                                        "/api/v1/cart/add"
+                                        "/api/v1/auth/change-password"
                                 ).authenticated()
-                                .requestMatchers(HttpMethod.PATCH,
-                                        "/items/{productId}/increment",
-                                        "/items/{productId}/decrement"
-                                ).authenticated()
-                                .requestMatchers(HttpMethod.DELETE,
-                                        "/items/{productId}"
-                                ).authenticated()
+                                .requestMatchers("/api/v1/cart/**")
+                                .authenticated()
                                 .anyRequest().authenticated()
                 )
                 .addFilterBefore(
