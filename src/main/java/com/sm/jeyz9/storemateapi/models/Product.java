@@ -51,7 +51,10 @@ public class Product {
     
     private Integer stock_quantity;
     private String summary;
+    
+    @Column(columnDefinition = "TEXT")
     private String description;
+    
     private LocalDateTime updatedAt;
     private LocalDateTime createdAt;
 }
