@@ -50,7 +50,6 @@ public class Product {
     private List<ProductImage> productImage;
     
     private Integer stock_quantity;
-    private String summary;
     
     @Column(columnDefinition = "TEXT")
     private String description;
