@@ -1,0 +1,37 @@
+services:
+  db:
+    image: postgres:18.3-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: store_mate_db
+      POSTGRES_PASSWORD: 257890
+    ports:
+      - "5432:5432"
+    volumes:
+        - postgres_data:/var/lib/postgresql/data
+        
+  store-mate-api:
+    build: .
+    environment:
+      JWT_SECRET:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/store_mate_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 257890
+      FRONTEND_URL: http://localhost:5173
+      THAIBULKEMAIL_KEY: 
+      THAIBULKEMAIL_SECRET:
+      THAIBULKEMAIL_SEND_URL: 
+      THAIBULKEMAIL_EMAIL_SENDER:
+      THAIBULKEMAIL_RESET_PASSWORD_TEMPLATE_UUID: 
+      SUPABASE_URL:
+      SUPABASE_KEY:
+      SUPABASE_BUCKET_PRODUCT:
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"
+        
+volumes:
+  postgres_data:
