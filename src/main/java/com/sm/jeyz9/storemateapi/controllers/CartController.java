@@ -30,7 +30,7 @@ public class CartController {
         this.cartService = cartService;
     }
     
-    @PostMapping("/add")
+    @PostMapping("/items")
     public ResponseEntity<String> addProductToCart(@Valid @RequestBody CartItemRequestDTO request, Principal principal) {
            return new ResponseEntity<>(cartService.addProductToCart(principal.getName(), request), HttpStatus.CREATED);
     }
